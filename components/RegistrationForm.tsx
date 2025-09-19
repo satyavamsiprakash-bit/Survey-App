@@ -71,7 +71,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onFormSubmit }) => 
     onFormSubmit(newAttendee);
 
     setSubmissionResult({
-      message: `Thank you, ${formData.fullName}! Your registration is confirmed. We've prepared some personalized session suggestions for you below.`,
+      message: `Your registration is confirmed. We've prepared some personalized session suggestions for you below.`,
       suggestions: suggestions,
     });
 
@@ -83,20 +83,21 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onFormSubmit }) => 
       <Card>
         <div className="text-center p-8">
           <svg className="w-16 h-16 mx-auto text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-          <h3 className="text-2xl font-bold mt-4 text-white">Registration Successful!</h3>
+          <h3 className="text-2xl font-bold mt-4 text-white">Thank you for sharing the details.</h3>
           <p className="text-slate-300 mt-2 max-w-2xl mx-auto">{submissionResult.message}</p>
           
+          <div className="my-6 p-4 bg-slate-900/60 border border-indigo-700 rounded-lg shadow-lg">
+            <p className="text-slate-300 text-lg">
+                For further details, please contact Krishna Reddy at <a href="tel:9916482647" className="text-indigo-400 font-bold hover:underline">9916482647</a>.
+            </p>
+          </div>
+
           {submissionResult.suggestions && (
              <div className="mt-6 text-left bg-slate-800/50 p-4 rounded-lg border border-slate-700">
                 <h4 className="font-semibold text-indigo-400 mb-2">Personalized Suggestions for You:</h4>
                 <p className="text-slate-300 whitespace-pre-wrap">{submissionResult.suggestions}</p>
              </div>
           )}
-          <div className="mt-8 pt-6 border-t border-slate-700">
-            <p className="text-slate-400">
-                For further details, please contact Krishna Reddy at <a href="tel:9916482647" className="text-indigo-400 font-semibold hover:underline">9916482647</a>.
-            </p>
-          </div>
         </div>
       </Card>
     );
