@@ -1,6 +1,8 @@
+
 import React, { useState, useEffect } from 'react';
 import { Attendee } from '../types';
 import { getSummitSuggestions } from '../services/geminiService';
+import { sendConfirmationSms } from '../services/smsService';
 import Input from './ui/Input';
 import Textarea from './ui/Textarea';
 import Button from './ui/Button';
@@ -45,7 +47,8 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onFormSubmit }) => 
   const validate = (): boolean => {
     const newErrors: Partial<typeof formData> = {};
     if (!formData.fullName) newErrors.fullName = 'Full name is required.';
-    if (!formData.email || !/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'A valid email is required.';
+    // Email is optional, but if provided, it should be valid.
+    if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Please enter a valid email address.';
     if (!formData.phone || !/^\d{10}$/.test(formData.phone.replace(/\D/g, ''))) newErrors.phone = 'A valid 10-digit phone number is required.';
     if (!formData.profession) newErrors.profession = 'Profession is required.';
     if (!formData.businessChallenges || formData.businessChallenges.length < 10) newErrors.businessChallenges = 'Please describe your challenges in at least 10 characters.';
@@ -81,12 +84,16 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onFormSubmit }) => 
       },
     };
 
-    const suggestions = await getSummitSuggestions(formData.profession, formData.businessChallenges);
+    // Parallelize API calls for better performance
+    const [suggestions, smsResult] = await Promise.all([
+        getSummitSuggestions(formData.profession, formData.businessChallenges),
+        sendConfirmationSms(formData.phone, `Hello ${formData.fullName}, thank you for registering for the Community Summit! We're excited to see you there.`)
+    ]);
 
     onFormSubmit(newAttendee);
 
     setSubmissionResult({
-      message: `Thank you, ${formData.fullName}! Your registration is confirmed. In a real-world application, a confirmation message would be sent to ${formData.phone}.`,
+      message: `Thank you, ${formData.fullName}! Your registration is confirmed. ${smsResult.success ? `A confirmation message has been sent to ${formData.phone}.` : `We could not send a confirmation SMS to ${formData.phone} at this time.`}`,
       suggestions: suggestions,
     });
 
@@ -119,7 +126,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onFormSubmit }) => 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Input name="fullName" placeholder="Full Name" value={formData.fullName} onChange={handleChange} error={errors.fullName} />
           <Input name="profession" placeholder="Your Profession" value={formData.profession} onChange={handleChange} error={errors.profession} />
-          <Input name="email" type="email" placeholder="Email Address" value={formData.email} onChange={handleChange} error={errors.email} />
+          <Input name="email" type="email" placeholder="Email Address (Optional)" value={formData.email} onChange={handleChange} error={errors.email} />
           <Input name="phone" type="tel" placeholder="Phone Number (e.g., 1234567890)" value={formData.phone} onChange={handleChange} error={errors.phone} />
         </div>
 
@@ -136,7 +143,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onFormSubmit }) => 
         </div>
         
         <Button type="submit" disabled={isLoading} className="w-full">
-          {isLoading ? <Spinner /> : 'Register and Get Suggestions'}
+          {isLoading ? <Spinner /> : 'Submit'}
         </Button>
       </form>
     </Card>

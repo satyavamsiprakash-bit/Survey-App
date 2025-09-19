@@ -1,20 +1,44 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import RegistrationForm from './components/RegistrationForm';
-import AttendeeList from './components/AttendeeList';
+import AdminDashboard from './components/AdminDashboard';
+import AdminLogin from './components/AdminLogin';
 import Header from './components/ui/Header';
 import { Attendee } from './types';
 import { useLocalStorage } from './hooks/useLocalStorage';
 
-type View = 'form' | 'list';
-
 const App: React.FC = () => {
-  const [view, setView] = useState<View>('form');
   const [attendees, setAttendees] = useLocalStorage<Attendee[]>('attendees', []);
+  const [route, setRoute] = useState(window.location.hash);
+  const [isAuthenticated, setIsAuthenticated] = useLocalStorage<boolean>('isAdminAuthenticated', false);
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      setRoute(window.location.hash);
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
 
   const addAttendee = (attendee: Attendee) => {
     setAttendees([...attendees, attendee]);
-    // We no longer switch the view automatically after submission
+  };
+
+  const renderContent = () => {
+    if (route === '#admin') {
+      if (isAuthenticated) {
+        return <AdminDashboard attendees={attendees} onLogout={() => setIsAuthenticated(false)} />;
+      } else {
+        return <AdminLogin onLoginSuccess={() => setIsAuthenticated(true)} />;
+      }
+    }
+
+    return (
+      <div className="max-w-4xl mx-auto">
+        <RegistrationForm onFormSubmit={addAttendee} />
+      </div>
+    );
   };
 
   return (
@@ -22,34 +46,11 @@ const App: React.FC = () => {
       <Header />
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-7xl mx-auto">
-          {view === 'form' ? (
-            <div className="max-w-4xl mx-auto">
-              <RegistrationForm onFormSubmit={addAttendee} />
-            </div>
-          ) : (
-             <>
-              <div className="flex justify-between items-center mb-6">
-                 <h2 className="text-3xl font-bold text-white">Registered Attendees ({attendees.length})</h2>
-                 <button 
-                    onClick={() => setView('form')} 
-                    className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-indigo-500 transition-all duration-300"
-                    aria-label="Back to registration form"
-                  >
-                    &larr; Back to Form
-                 </button>
-              </div>
-              <AttendeeList attendees={attendees} />
-            </>
-          )}
+          {renderContent()}
         </div>
       </main>
       <footer className="text-center py-4 text-slate-500 text-sm">
         <p>Community Summit 2024 &copy; All rights reserved.</p>
-        {view === 'form' && (
-            <button onClick={() => setView('list')} className="mt-2 text-indigo-400 hover:text-indigo-300 transition-colors text-xs font-medium">
-                Admin View
-            </button>
-        )}
       </footer>
     </div>
   );
