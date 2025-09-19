@@ -1,0 +1,5 @@
+{
+  "name": "Community Summit Registration",
+  "description": "An elegant application to collect attendee information for a community summit, providing AI-powered session recommendations based on their professional challenges.",
+  "requestFramePermissions": []
+}
