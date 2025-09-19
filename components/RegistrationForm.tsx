@@ -1,8 +1,6 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Attendee } from '../types';
 import { getSummitSuggestions } from '../services/geminiService';
-import { sendConfirmationSms } from '../services/smsService';
 import Input from './ui/Input';
 import Textarea from './ui/Textarea';
 import Button from './ui/Button';
@@ -29,25 +27,9 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onFormSubmit }) => 
   const [isLoading, setIsLoading] = useState(false);
   const [submissionResult, setSubmissionResult] = useState<{ message: string; suggestions?: string; } | null>(null);
 
-  useEffect(() => {
-    if (!submissionResult) return;
-
-    const timer = setTimeout(() => {
-        setFormData({
-            fullName: '', email: '', phone: '', profession: '', businessChallenges: '',
-            street: '', city: '', state: '', zip: '',
-        });
-        setSubmissionResult(null);
-    }, 15000); // Reset after 15 seconds
-
-    return () => clearTimeout(timer);
-  }, [submissionResult]);
-
-
   const validate = (): boolean => {
     const newErrors: Partial<typeof formData> = {};
     if (!formData.fullName) newErrors.fullName = 'Full name is required.';
-    // Email is optional, but if provided, it should be valid.
     if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Please enter a valid email address.';
     if (!formData.phone || !/^\d{10}$/.test(formData.phone.replace(/\D/g, ''))) newErrors.phone = 'A valid 10-digit phone number is required.';
     if (!formData.profession) newErrors.profession = 'Profession is required.';
@@ -84,16 +66,12 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onFormSubmit }) => 
       },
     };
 
-    // Parallelize API calls for better performance
-    const [suggestions, smsResult] = await Promise.all([
-        getSummitSuggestions(formData.profession, formData.businessChallenges),
-        sendConfirmationSms(formData.phone, `Hello ${formData.fullName}, thank you for registering for the Community Summit! We're excited to see you there.`)
-    ]);
-
+    const suggestions = await getSummitSuggestions(formData.profession, formData.businessChallenges);
+    
     onFormSubmit(newAttendee);
 
     setSubmissionResult({
-      message: `Thank you, ${formData.fullName}! Your registration is confirmed. ${smsResult.success ? `A confirmation message has been sent to ${formData.phone}.` : `We could not send a confirmation SMS to ${formData.phone} at this time.`}`,
+      message: `Thank you, ${formData.fullName}! Your registration is confirmed. We've prepared some personalized session suggestions for you below.`,
       suggestions: suggestions,
     });
 
@@ -106,13 +84,19 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onFormSubmit }) => 
         <div className="text-center p-8">
           <svg className="w-16 h-16 mx-auto text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
           <h3 className="text-2xl font-bold mt-4 text-white">Registration Successful!</h3>
-          <p className="text-slate-300 mt-2">{submissionResult.message}</p>
+          <p className="text-slate-300 mt-2 max-w-2xl mx-auto">{submissionResult.message}</p>
+          
           {submissionResult.suggestions && (
              <div className="mt-6 text-left bg-slate-800/50 p-4 rounded-lg border border-slate-700">
                 <h4 className="font-semibold text-indigo-400 mb-2">Personalized Suggestions for You:</h4>
                 <p className="text-slate-300 whitespace-pre-wrap">{submissionResult.suggestions}</p>
              </div>
           )}
+          <div className="mt-8 pt-6 border-t border-slate-700">
+            <p className="text-slate-400">
+                For further details, please contact Krishna Reddy at <a href="tel:9916482647" className="text-indigo-400 font-semibold hover:underline">9916482647</a>.
+            </p>
+          </div>
         </div>
       </Card>
     );
@@ -121,7 +105,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onFormSubmit }) => 
   return (
     <Card>
       <form onSubmit={handleSubmit} noValidate className="p-8 space-y-6">
-        <h2 className="text-3xl font-bold text-center text-white mb-6">Join the Summit</h2>
+        <h2 className="text-3xl font-bold text-center text-white mb-6">Share Your Details</h2>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Input name="fullName" placeholder="Full Name" value={formData.fullName} onChange={handleChange} error={errors.fullName} />

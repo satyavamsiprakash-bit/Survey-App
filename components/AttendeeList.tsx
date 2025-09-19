@@ -4,9 +4,10 @@ import Card from './ui/Card';
 
 interface AttendeeListProps {
   attendees: Attendee[];
+  onRemove: (id: string) => void;
 }
 
-const AttendeeList: React.FC<AttendeeListProps> = ({ attendees }) => {
+const AttendeeList: React.FC<AttendeeListProps> = ({ attendees, onRemove }) => {
   if (attendees.length === 0) {
     return (
       <Card>
@@ -30,6 +31,7 @@ const AttendeeList: React.FC<AttendeeListProps> = ({ attendees }) => {
                         <th scope="col" className="px-6 py-3">Profession</th>
                         <th scope="col" className="px-6 py-3">Address</th>
                         <th scope="col" className="px-6 py-3">Business Challenges</th>
+                        <th scope="col" className="px-6 py-3 text-center">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -41,6 +43,19 @@ const AttendeeList: React.FC<AttendeeListProps> = ({ attendees }) => {
                             <td className="px-6 py-4">{attendee.profession}</td>
                             <td className="px-6 py-4 whitespace-nowrap">{`${attendee.address.street}, ${attendee.address.city}, ${attendee.address.state} ${attendee.address.zip}`}</td>
                             <td className="px-6 py-4 max-w-sm whitespace-normal">{attendee.businessChallenges}</td>
+                            <td className="px-6 py-4 text-center">
+                                <button
+                                    onClick={() => {
+                                        if (window.confirm(`Are you sure you want to remove ${attendee.fullName}?`)) {
+                                            onRemove(attendee.id);
+                                        }
+                                    }}
+                                    className="font-medium text-red-500 hover:text-red-400 transition-colors duration-200"
+                                    aria-label={`Remove ${attendee.fullName}`}
+                                >
+                                    Remove
+                                </button>
+                            </td>
                         </tr>
                     ))}
                 </tbody>

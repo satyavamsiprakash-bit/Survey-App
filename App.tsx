@@ -25,10 +25,14 @@ const App: React.FC = () => {
     setAttendees([...attendees, attendee]);
   };
 
+  const removeAttendee = (id: string) => {
+    setAttendees(attendees.filter(attendee => attendee.id !== id));
+  };
+
   const renderContent = () => {
     if (route === '#admin') {
       if (isAuthenticated) {
-        return <AdminDashboard attendees={attendees} onLogout={() => setIsAuthenticated(false)} />;
+        return <AdminDashboard attendees={attendees} onLogout={() => setIsAuthenticated(false)} onRemoveAttendee={removeAttendee} />;
       } else {
         return <AdminLogin onLoginSuccess={() => setIsAuthenticated(true)} />;
       }
