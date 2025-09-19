@@ -71,7 +71,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onFormSubmit }) => 
     onFormSubmit(newAttendee);
 
     setSubmissionResult({
-      message: `Your registration is confirmed. We've prepared some personalized session suggestions for you below.`,
+      message: ` We've prepared some personalized session suggestions for you below.`,
       suggestions: suggestions,
     });
 
