@@ -7,9 +7,10 @@ interface AdminDashboardProps {
   attendees: Attendee[];
   onLogout: () => void;
   onRemoveAttendee: (id: string) => void;
+  isLoading?: boolean;
 }
 
-const AdminDashboard: React.FC<AdminDashboardProps> = ({ attendees, onLogout, onRemoveAttendee }) => {
+const AdminDashboard: React.FC<AdminDashboardProps> = ({ attendees, onLogout, onRemoveAttendee, isLoading }) => {
 
   const handleExport = () => {
     if (attendees.length === 0) {
@@ -90,7 +91,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ attendees, onLogout, on
           </button>
         </div>
       </div>
-      <AttendeeList attendees={attendees} onRemove={onRemoveAttendee} />
+      <AttendeeList attendees={attendees} onRemove={onRemoveAttendee} isLoading={isLoading} />
     </>
   );
 };

@@ -6,11 +6,13 @@ import AdminLogin from './components/AdminLogin';
 import Header from './components/ui/Header';
 import { Attendee } from './types';
 import { useLocalStorage } from './hooks/useLocalStorage';
+import { getAttendees, deleteAttendee } from './services/attendeeService';
 
 const App: React.FC = () => {
-  const [attendees, setAttendees] = useLocalStorage<Attendee[]>('attendees', []);
+  const [attendees, setAttendees] = useState<Attendee[]>([]);
   const [route, setRoute] = useState(window.location.hash);
   const [isAuthenticated, setIsAuthenticated] = useLocalStorage<boolean>('isAdminAuthenticated', false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const handleHashChange = () => {
@@ -21,18 +23,43 @@ const App: React.FC = () => {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
+  useEffect(() => {
+    if (route === '#admin' && isAuthenticated) {
+      setIsLoading(true);
+      getAttendees()
+        .then(setAttendees)
+        .catch(err => {
+          console.error("Failed to fetch attendees:", err);
+          alert("Could not load attendee data. Please try refreshing the page.");
+        })
+        .finally(() => setIsLoading(false));
+    }
+  }, [route, isAuthenticated]);
+
+
   const addAttendee = (attendee: Attendee) => {
-    setAttendees([...attendees, attendee]);
+    // Called after a new registration is successfully submitted to the DB.
+    // We only need to update the local state if the admin is currently viewing the list.
+    if (isAuthenticated) {
+      setAttendees(prev => [...prev, attendee]);
+    }
   };
 
   const removeAttendee = (id: string) => {
-    setAttendees(attendees.filter(attendee => attendee.id !== id));
+    const originalAttendees = [...attendees];
+    setAttendees(attendees.filter(attendee => attendee.id !== id)); // Optimistic update
+
+    deleteAttendee(id).catch(error => {
+      console.error("Failed to delete attendee:", error);
+      setAttendees(originalAttendees); // Revert on failure
+      alert("Failed to remove attendee. Please try again.");
+    });
   };
 
   const renderContent = () => {
     if (route === '#admin') {
       if (isAuthenticated) {
-        return <AdminDashboard attendees={attendees} onLogout={() => setIsAuthenticated(false)} onRemoveAttendee={removeAttendee} />;
+        return <AdminDashboard attendees={attendees} onLogout={() => setIsAuthenticated(false)} onRemoveAttendee={removeAttendee} isLoading={isLoading} />;
       } else {
         return <AdminLogin onLoginSuccess={() => setIsAuthenticated(true)} />;
       }

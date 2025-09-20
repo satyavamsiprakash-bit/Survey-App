@@ -1,13 +1,26 @@
 import React from 'react';
 import { Attendee } from '../types';
 import Card from './ui/Card';
+import Spinner from './ui/Spinner';
 
 interface AttendeeListProps {
   attendees: Attendee[];
   onRemove: (id: string) => void;
+  isLoading?: boolean;
 }
 
-const AttendeeList: React.FC<AttendeeListProps> = ({ attendees, onRemove }) => {
+const AttendeeList: React.FC<AttendeeListProps> = ({ attendees, onRemove, isLoading }) => {
+  if (isLoading) {
+    return (
+      <Card>
+        <div className="flex items-center justify-center p-8 h-64 text-indigo-600">
+          <Spinner />
+          <span className="ml-3 text-lg font-medium text-slate-700">Loading attendees...</span>
+        </div>
+      </Card>
+    );
+  }
+  
   if (attendees.length === 0) {
     return (
       <Card>
