@@ -36,7 +36,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
     <div className="max-w-md mx-auto mt-10">
       <Card>
         <form onSubmit={handleSubmit} noValidate className="p-8 space-y-6">
-          <h2 className="text-3xl font-bold text-center text-white mb-6">Admin Access</h2>
+          <h2 className="text-3xl font-bold text-center text-slate-900 mb-6">Admin Access</h2>
           <Input
             name="username"
             placeholder="Username"
@@ -57,7 +57,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
             {isLoading ? <Spinner /> : 'Login'}
           </Button>
           <div className="text-center">
-            <a href="#/" className="text-indigo-400 hover:text-indigo-300 transition-colors text-sm font-medium">
+            <a href="#/" className="text-indigo-600 hover:text-indigo-500 transition-colors text-sm font-medium">
               &larr; Back to Registration Form
             </a>
           </div>

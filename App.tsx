@@ -46,7 +46,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-indigo-900 font-sans">
+    <div className="min-h-screen font-sans">
       <Header />
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-7xl mx-auto">
@@ -54,7 +54,7 @@ const App: React.FC = () => {
         </div>
       </main>
       <footer className="text-center py-4 text-slate-500 text-sm">
-        <p>Community Summit 2024 &copy; All rights reserved.</p>
+        <p>DS Digital solutions Connect 2024 &copy; All rights reserved.</p>
       </footer>
     </div>
   );

@@ -1,6 +1,6 @@
-# Community Summit Registration
+# DS Digital solutions Connect Registration
 
-This is an elegant web application for managing attendee registrations for a community summit. It features a clean, modern user interface and leverages the Gemini API to provide personalized session and networking suggestions to attendees based on their professional background and challenges.
+This is an elegant web application for managing attendee registrations for DS Digital solutions Connect. It features a clean, modern user interface and leverages the Gemini API to provide personalized session and networking suggestions to attendees based on their professional background and challenges.
 
 ## ✨ Features
 
@@ -32,8 +32,8 @@ Follow these instructions to get a copy of the project up and running on your lo
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/your-username/community-summit-registration.git
-    cd community-summit-registration
+    git clone https://github.com/your-username/ds-digital-solutions-connect-registration.git
+    cd ds-digital-solutions-connect-registration
     ```
 
 2.  **Install dependencies:**

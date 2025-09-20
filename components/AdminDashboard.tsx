@@ -53,7 +53,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ attendees, onLogout, on
     
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
-    link.setAttribute('download', 'summit-attendees.csv');
+    link.setAttribute('download', 'ds-digital-solutions-connect-attendees.csv');
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
@@ -63,19 +63,19 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ attendees, onLogout, on
 
   return (
     <>
-      <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
-        <h2 className="text-3xl font-bold text-white">Registered Attendees ({attendees.length})</h2>
+      <div className="flex flex-wrap justify-between items-center gap-4 mb-6 animate-fade-in-up">
+        <h2 className="text-3xl font-bold text-slate-900">Registered Attendees ({attendees.length})</h2>
         <div className="flex items-center gap-4">
           <a
             href="#/"
-            className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-indigo-500 transition-all duration-300"
+            className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-indigo-500 transition-all duration-300"
             aria-label="Back to registration form"
           >
             &larr; Back to Form
           </a>
           <button
             onClick={onLogout}
-            className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-red-500 transition-all duration-300"
+            className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-red-500 transition-all duration-300"
             aria-label="Logout"
           >
             Logout
@@ -83,7 +83,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ attendees, onLogout, on
           <button
             onClick={handleExport}
             disabled={attendees.length === 0}
-            className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-green-500 transition-all duration-300 disabled:bg-slate-500 disabled:cursor-not-allowed"
+            className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-green-500 transition-all duration-300 disabled:bg-slate-500 disabled:cursor-not-allowed"
             aria-label="Export to Excel"
           >
             Export to Excel

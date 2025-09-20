@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Community Summit Registration</title>
+    <title>DS Digital solutions Connect Registration</title>
     <script src="https://cdn.tailwindcss.com"></script>
 <script type="importmap">
 {
@@ -20,9 +20,34 @@
   }
 }
 </script>
+<style>
+  @keyframes gradientAnimation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  .animated-gradient {
+    background: linear-gradient(-45deg, #f1f5f9, #ffffff, #f8fafc, #f1f5f9);
+    background-size: 400% 400%;
+    animation: gradientAnimation 15s ease infinite;
+  }
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .animate-fade-in-up {
+    animation: fadeInUp 0.5s ease-out forwards;
+  }
+</style>
 <link rel="stylesheet" href="/index.css">
 </head>
-  <body class="bg-slate-900 text-slate-100">
+  <body class="animated-gradient text-slate-800">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>

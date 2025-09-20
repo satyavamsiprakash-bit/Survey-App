@@ -23,7 +23,7 @@ export default async function handler(request: VercelRequest, response: VercelRe
   try {
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     const prompt = `
-      An attendee at a community summit has registered with the following details:
+      An attendee at DS Digital solutions Connect has registered with the following details:
       - Profession: ${profession}
       - Key Business Challenge: "${challenges}"
 
