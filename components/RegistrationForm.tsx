@@ -58,7 +58,11 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onFormSubmit }) => 
 
     const newAttendee: Attendee = {
       id: new Date().toISOString() + '-' + Math.random().toString(36).substring(2, 9),
-      ...formData,
+      fullName: formData.fullName,
+      email: formData.email,
+      phone: formData.phone,
+      profession: formData.profession,
+      businessChallenges: formData.businessChallenges,
       address: {
         street: formData.street,
         city: formData.city,
