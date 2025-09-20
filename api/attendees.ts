@@ -5,31 +5,35 @@ import type { Attendee } from '../types';
 const ATTENDEE_PREFIX = 'attendee:';
 
 /**
- * A runtime type guard to validate that an object conforms to the Attendee interface.
- * This prevents incomplete or malformed data from being processed or stored.
+ * A robust runtime type guard to validate that an object conforms to the Attendee interface.
+ * This prevents incomplete or malformed data from being processed, stored, or read.
  */
-function isValidAttendee(data: any): data is Attendee {
-    if (!data || typeof data !== 'object') {
+function isValidAttendee(data: unknown): data is Attendee {
+    if (!data || typeof data !== 'object' || data === null) {
         return false;
     }
 
+    const attendee = data as Record<string, any>;
+
     const hasPersonalInfo = 
-        typeof data.id === 'string' && !!data.id &&
-        typeof data.fullName === 'string' && !!data.fullName &&
-        typeof data.phone === 'string' && !!data.phone &&
-        typeof data.profession === 'string' && !!data.profession &&
-        typeof data.businessChallenges === 'string' && !!data.businessChallenges;
+        typeof attendee.id === 'string' && attendee.id.length > 0 &&
+        typeof attendee.fullName === 'string' && attendee.fullName.length > 0 &&
+        typeof attendee.email === 'string' && // Email can be empty, but must be a string
+        typeof attendee.phone === 'string' && attendee.phone.length > 0 &&
+        typeof attendee.profession === 'string' && attendee.profession.length > 0 &&
+        typeof attendee.businessChallenges === 'string' && attendee.businessChallenges.length > 0;
 
     if (!hasPersonalInfo) {
         return false;
     }
 
+    const address = attendee.address;
     const hasAddress = 
-        data.address && typeof data.address === 'object' &&
-        typeof data.address.street === 'string' && !!data.address.street &&
-        typeof data.address.city === 'string' && !!data.address.city &&
-        typeof data.address.state === 'string' && !!data.address.state &&
-        typeof data.address.zip === 'string' && !!data.address.zip;
+        address && typeof address === 'object' && address !== null &&
+        typeof address.street === 'string' && address.street.length > 0 &&
+        typeof address.city === 'string' && address.city.length > 0 &&
+        typeof address.state === 'string' && address.state.length > 0 &&
+        typeof address.zip === 'string' && address.zip.length > 0;
     
     return hasAddress;
 }
@@ -47,24 +51,39 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(200).json([]);
       }
       
-      // Use mget without generics for robustness. The SDK will parse JSON automatically.
-      const attendeesData = await kv.mget(...attendeeKeys);
+      // The SDK automatically parses JSON, but malformed data can result in nulls.
+      const attendeesData = await kv.mget<(Attendee | null)[]>(...attendeeKeys);
       
-      // Filter out any null or invalid records to prevent crashes.
+      // Filter out any null or invalid records to prevent the client from crashing.
       const validAttendees = attendeesData.filter(isValidAttendee);
 
-      res.status(200).json(validAttendees);
+      return res.status(200).json(validAttendees);
 
     } else if (req.method === 'POST') {
-      const newAttendeeData = req.body;
+      let newAttendeeData: unknown;
+      
+      // Vercel's body parser should handle this, but we'll be defensive.
+      if (typeof req.body === 'string' && req.body.length > 0) {
+          try {
+              newAttendeeData = JSON.parse(req.body);
+          } catch (error) {
+              console.error('Failed to parse request body string:', error);
+              return res.status(400).json({ error: 'Invalid JSON format in request body.' });
+          }
+      } else if (typeof req.body === 'object' && req.body !== null) {
+          newAttendeeData = req.body;
+      } else {
+        return res.status(400).json({ error: 'Request body is missing or not an object.' });
+      }
 
       // Use the robust type guard to validate the incoming data.
       if (!isValidAttendee(newAttendeeData)) {
+        console.error('Validation failed for new attendee data:', newAttendeeData);
         return res.status(400).json({ error: 'Missing or invalid attendee data provided.' });
       }
       
       await kv.set(`${ATTENDEE_PREFIX}${newAttendeeData.id}`, newAttendeeData);
-      res.status(201).json(newAttendeeData);
+      return res.status(201).json(newAttendeeData);
 
     } else if (req.method === 'DELETE') {
       const { id } = req.query;
@@ -72,15 +91,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(400).json({ error: 'A valid attendee ID is required for deletion.' });
       }
       await kv.del(`${ATTENDEE_PREFIX}${id}`);
-      res.status(200).json({ message: 'Attendee deleted successfully' });
+      return res.status(200).json({ message: 'Attendee deleted successfully' });
 
     } else {
       res.setHeader('Allow', ['GET', 'POST', 'DELETE']);
-      res.status(405).end(`Method ${req.method} Not Allowed`);
+      return res.status(405).end(`Method ${req.method} Not Allowed`);
     }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-    console.error('Error in /api/attendees:', errorMessage, error);
-    res.status(500).json({ error: 'An internal server error occurred.', details: errorMessage });
+    console.error('CRITICAL ERROR in /api/attendees:', error);
+    return res.status(500).json({ error: 'An internal server error occurred.', details: errorMessage });
   }
 }
